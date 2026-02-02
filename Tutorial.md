@@ -105,21 +105,24 @@ Api:
 ```
 #
 ### Create [UserRepository.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Frepositories%2FUserRepository.java)
+
 ```java
-import com.example.security.model.entity.User;
+import com.example.security.user.model.entity.User;
+import com.example.security.user.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-  Optional<User> findByUsername(String username);
-  Optional<User> findByUsernameAndActiveIsAndOtpVerifyIs(String username, boolean active, boolean acceptIs);
+public interface UserRepository extends JpaRepository<com.example.security.user.model.entity.User, Long> {
+    Optional<com.example.security.user.model.entity.User> findByUsername(String username);
 
-  Boolean existsByUsername(String username);
+    Optional<User> findByUsernameAndActiveIsAndOtpVerifyIs(String username, boolean active, boolean acceptIs);
 
-  Boolean existsByEmail(String email);
+    Boolean existsByUsername(String username);
+
+    Boolean existsByEmail(String email);
 }
 ```
 #
@@ -141,8 +144,10 @@ public class ResourceException extends RuntimeException {
 
 #
 ### Create [UserDetailsImpl.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fservice%2Fuser%2FUserDetailsImpl.java)
+
 ```java
-import com.example.security.model.entity.User;
+import com.example.security.user.model.entity.User;
+import com.example.security.user.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -159,108 +164,109 @@ import java.util.stream.Collectors;
  * */
 @Service
 public class UserDetailsImpl implements UserDetails {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private Long id;
+    private Long id;
 
-  private String username;
+    private String username;
 
-  private String email;
+    private String email;
 
-  @JsonIgnore
-  private String password;
+    @JsonIgnore
+    private String password;
 
-  private Collection<? extends GrantedAuthority> authorities;
+    private Collection<? extends GrantedAuthority> authorities;
 
-  public UserDetailsImpl(Long id, String username, String email, String password,
-                         Collection<? extends GrantedAuthority> authorities) {
-    this.id = id;
-    this.username = username;
-    this.email = email;
-    this.password = password;
-    this.authorities = authorities;
-  }
-  public UserDetailsImpl() {
+    public UserDetailsImpl(Long id, String username, String email, String password,
+                           Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.authorities = authorities;
+    }
 
-  }
+    public UserDetailsImpl() {
 
-  /**
-   method to build UserDetail (called user detailsService Impl for return UserDetail)
-   */
-  public UserDetailsImpl build(User user) {
-    List<GrantedAuthority> authorities = user.getRoles().stream()
-        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-        .collect(Collectors.toList());
+    }
 
-    return new UserDetailsImpl(
-        user.getId(), 
-        user.getUsername(), 
-        user.getEmail(),
-        user.getPassword(), 
-        authorities
-    );
-  }
+    /**
+     method to build UserDetail (called user detailsService Impl for return UserDetail)
+     */
+    public UserDetailsImpl build(com.example.security.user.model.entity.User user) {
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return authorities;
-  }
+        return new UserDetailsImpl(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                authorities
+        );
+    }
 
-  public Long getId() {
-    return id;
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  @Override
-  public String getPassword() {
-    return password;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  @Override
-  public String getUsername() {
-    return username;
-  }
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
+    @Override
+    public String getUsername() {
+        return username;
+    }
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-    UserDetailsImpl user = (UserDetailsImpl) o;
-    return Objects.equals(id, user.id);
-  }
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        UserDetailsImpl user = (UserDetailsImpl) o;
+        return Objects.equals(id, user.id);
+    }
 }
 ```
 #
 ### Create [UserDetailsServiceImpl.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fservice%2Fuser%2FUserDetailsServiceImpl.java)
+
 ```java
-import com.example.security.exception.ResourceException;
-import com.example.security.model.entity.User;
-import com.example.security.repositories.UserRepository;
+import com.example.security.common.exception.ResourceException;
+import com.example.security.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -287,7 +293,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsernameAndActiveIsAndOtpVerifyIs(username, true, true)
+        com.example.security.user.model.entity.User user = userRepository.findByUsernameAndActiveIsAndOtpVerifyIs(username, true, true)
                 .orElseThrow(() -> new ResourceException(USER_NOT_FOUND));
 
         return userDetails.build(user);
@@ -306,9 +312,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 ```
 
 #
-### Create [JwtUtils.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Futils%2FJwtUtils.java) 
+### Create [JwtUtils.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Futils%2FJwtUtils.java)
+
 ```java
-import com.example.security.service.user.UserDetailsImpl;
+
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -320,65 +327,66 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-  private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-  @Value("${bezkoder.app.jwtSecret}")
-  private String jwtSecret;
+    @Value("${bezkoder.app.jwtSecret}")
+    private String jwtSecret;
 
-  @Value("${bezkoder.app.jwtExpirationMs}")
-  private int jwtExpirationMs;
+    @Value("${bezkoder.app.jwtExpirationMs}")
+    private int jwtExpirationMs;
 
 
-  public String generateAccessToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
 
-    UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        com.example.security.user.service.impl.UserDetailsImpl userPrincipal = (com.example.security.user.service.impl.UserDetailsImpl) authentication.getPrincipal();
 
-    return Jwts.builder()
-        .setSubject((userPrincipal.getUsername()))
-        .setIssuedAt(new Date())
-        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-        .signWith(SignatureAlgorithm.HS512, jwtSecret)
-        .compact();
-  }
-
-  public String generateAccessToken(String username) {
-    return Jwts.builder()
-            .setSubject((username))
-            .setIssuedAt(new Date())
-            .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-            .signWith(SignatureAlgorithm.HS512, jwtSecret)
-            .compact();
-  }
-
-  /**
-   get username and password from body of JWT
-   * */
-  public String getUserNameFromJwtToken(String token) {
-    return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
-  }
-
-  public boolean validateJwtToken(String authToken) {
-    try {
-      Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
-      return true;
-    } catch (SignatureException e) {
-      logger.error("Invalid JWT signature: {}", e.getMessage());
-    } catch (MalformedJwtException e) {
-      logger.error("Invalid JWT token: {}", e.getMessage());
-    } catch (ExpiredJwtException e) {
-      logger.error("JWT token is expired: {}", e.getMessage());
-    } catch (UnsupportedJwtException e) {
-      logger.error("JWT token is unsupported: {}", e.getMessage());
-    } catch (IllegalArgumentException e) {
-      logger.error("JWT claims string is empty: {}", e.getMessage());
+        return Jwts.builder()
+                .setSubject((userPrincipal.getUsername()))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
     }
-    return false;
-  }
-  public String getUsernameFromToken(String token) {
-    return Jwts.parser().setSigningKey(jwtSecret)
-            .parseClaimsJws(token)
-            .getBody().getSubject();
-  }
+
+    public String generateAccessToken(String username) {
+        return Jwts.builder()
+                .setSubject((username))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    /**
+     get username and password from body of JWT
+     * */
+    public String getUserNameFromJwtToken(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public boolean validateJwtToken(String authToken) {
+        try {
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            return true;
+        } catch (SignatureException e) {
+            logger.error("Invalid JWT signature: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token is expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT token is unsupported: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    public String getUsernameFromToken(String token) {
+        return Jwts.parser().setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody().getSubject();
+    }
 
 }
 ```
@@ -386,9 +394,10 @@ public class JwtUtils {
 #
 ### Create [AuthTokenFilter.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fconfig%2FAuthTokenFilter.java)
 - check after login
+
 ```java
-import com.example.security.service.user.UserDetailsServiceImpl;
-import com.example.security.utils.JwtUtils;
+import com.example.security.user.service.impl.UserDetailsServiceImpl;
+import com.example.security.auth.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -412,51 +421,51 @@ import java.io.IOException;
  * loading User details (using UserDetailsService), checking Authorizaion (using UsernamePasswordAuthenticationToken).
  * */
 public class AuthTokenFilter extends OncePerRequestFilter {
-  @Autowired
-  private JwtUtils jwtUtils;
+    @Autowired
+    private JwtUtils jwtUtils;
 
-  @Autowired
-  private UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
-  private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
-    try {
-      String jwt = parseJwt(request);
-      if (jwt != null && jwtUtils.validateJwtToken(jwt)) {// check validate for token
-        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        try {
+            String jwt = parseJwt(request);
+            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {// check validate for token
+                String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        // get username password from Login request
-        UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // get username password from Login request
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        // provide the permission access to access in to Security context
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-      }
-    } catch (Exception e) {
-      logger.error("Cannot set user authentication: ", e);
+                // provide the permission access to access in to Security context
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            logger.error("Cannot set user authentication: ", e);
+        }
+
+        filterChain.doFilter(request, response);
     }
 
-    filterChain.doFilter(request, response);
-  }
+    private String parseJwt(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
 
-  private String parseJwt(HttpServletRequest request) {
-    String headerAuth = request.getHeader("Authorization");
+        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+            return headerAuth.substring(7, headerAuth.length());
+        }
 
-    if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-      return headerAuth.substring(7, headerAuth.length());
+        return null;
     }
-
-    return null;
-  }
 }
 
 ```
@@ -522,21 +531,26 @@ public class JwtResponse {
 
 #
 ### Create [ProfileRepository.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Frepositories%2FProfileRepository.java)
+
 ```java
-import com.example.security.model.entity.Profile;
-import com.example.security.model.entity.User;
+import com.example.security.user.model.entity.Profile;
+import com.example.security.user.model.entity.User;
+import com.example.security.user.model.entity.Profile;
+import com.example.security.user.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ProfileRepository extends JpaRepository<Profile, User> {
-    Optional<Profile> findById(Long userId);
+public interface ProfileRepository extends JpaRepository<com.example.security.user.model.entity.Profile, com.example.security.user.model.entity.User> {
+    Optional<com.example.security.user.model.entity.Profile> findById(Long userId);
 }
 ```
 #
 ### Create [RefreshTokenRepository.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Frepositories%2FRefreshTokenRepository.java)
+
 ```java
-import com.example.security.model.entity.RefreshToken;
+import com.example.security.auth.model.entity.RefreshToken;
+import com.example.security.auth.model.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -548,6 +562,7 @@ import java.util.Optional;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 
     Optional<RefreshToken> findByToken(String token);
+
     void deleteByUserId(Long userId);
 
     @Transactional
@@ -557,9 +572,10 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
 #
 ### Create [RoleRepository.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Frepositories%2FRoleRepository.java)
+
 ```java
-import com.example.security.model.entity.Role;
-import com.example.security.model.role_enum.ERole;
+import com.example.security.auth.model.entity.Role;
+import com.example.security.auth.model.enums.RoleEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -567,7 +583,7 @@ import java.util.Optional;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer> {
-  Optional<Role> findByName(ERole name);
+    Optional<Role> findByName(RoleEnum name);
 }
 ```
 
@@ -616,15 +632,15 @@ public class TokenRefreshRequest {
 
 #
 ### Create [RefreshTokenService.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fservice%2FRefreshTokenService.java)
+
 ```java
-import com.example.security.model.entity.RefreshToken;
-import com.example.security.model.entity.User;
-import com.example.security.model.request.TokenRefreshRequest;
-import com.example.security.model.response.JwtRefreshResponse;
-import com.example.security.repositories.RefreshTokenRepository;
-import com.example.security.repositories.UserRepository;
-import com.example.security.service.user.UserDetailsImpl;
-import com.example.security.utils.JwtUtils;
+import com.example.security.auth.model.entity.RefreshToken;
+import com.example.security.auth.model.response.JwtRefreshResponse;
+import com.example.security.user.model.entity.User;
+import com.example.security.auth.model.request.TokenRefreshRequest;
+import com.example.security.auth.repository.RefreshTokenRepository;
+import com.example.security.user.repository.UserRepository;
+import com.example.security.auth.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -651,7 +667,7 @@ public class RefreshTokenService {
     private Long refreshTokenDurationMs;
 
     public RefreshToken createRefreshToken(Authentication authentication) {
-        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        com.example.security.user.service.impl.UserDetailsImpl userPrincipal = (com.example.security.user.service.impl.UserDetailsImpl) authentication.getPrincipal();
 
         User user = userRepository.findByUsername(userPrincipal.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -737,16 +753,17 @@ public class ProfileDTO {
 
 #
 ### Create [ProfileMapper.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fmodel%2Fmapper%2FProfileMapper.java)
+
 ```java
-import com.example.security.model.dto.ProfileDTO;
-import com.example.security.model.entity.Profile;
-import com.example.security.model.entity.User;
-import com.example.security.model.request.SignupRequest;
+import com.example.security.auth.model.request.SignupRequest;
+import com.example.security.user.model.response.ProfileDTO;
+import com.example.security.user.model.entity.Profile;
+import com.example.security.user.model.entity.User;
 
 public class ProfileMapper {
 
-    public static ProfileDTO toDTO(Profile profile, User user) {
-       return ProfileDTO.builder()
+    public static com.example.security.user.model.response.ProfileDTO toDTO(Profile profile, User user) {
+        return ProfileDTO.builder()
                 .id(profile.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
@@ -757,7 +774,7 @@ public class ProfileMapper {
                 .build();
     }
 
-    public static Profile mapWithSignupRequest(SignupRequest signUpRequest, User user) {
+    public static Profile mapWithSignupRequest(SignupRequest signUpRequest, com.example.security.user.model.entity.User user) {
         return Profile.builder()
                 .user(user)
                 .firstName(signUpRequest.getFirstName())
@@ -769,10 +786,11 @@ public class ProfileMapper {
 
 #
 ### Create [UserMapper.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fmodel%2Fmapper%2FUserMapper.java)
+
 ```java
-import com.example.security.model.entity.Role;
-import com.example.security.model.entity.User;
-import com.example.security.model.request.SignupRequest;
+import com.example.security.auth.model.entity.Role;
+import com.example.security.user.model.entity.User;
+import com.example.security.auth.model.request.SignupRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -781,7 +799,7 @@ import java.util.Set;
 public class UserMapper {
 
     public static User mapWithSignRequest(SignupRequest signUpRequest, Set<Role> roles) {
-       return User.builder()
+        return User.builder()
                 .username(signUpRequest.getUsername())
                 .email(signUpRequest.getEmail())
                 .password(signUpRequest.getPassword())
@@ -842,26 +860,26 @@ public class ExceptionUtils {
 
 #
 ### Create [AuthService.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fservice%2FAuthService.java)
+
 ```java
-import com.example.security.constant.Constant;
-import com.example.security.exception.ResourceException;
-import com.example.security.model.dto.ProfileDTO;
-import com.example.security.model.entity.Profile;
-import com.example.security.model.entity.RefreshToken;
-import com.example.security.model.entity.Role;
-import com.example.security.model.entity.User;
-import com.example.security.model.mapper.ProfileMapper;
-import com.example.security.model.mapper.UserMapper;
-import com.example.security.model.request.LoginRequest;
-import com.example.security.model.request.SignupRequest;
-import com.example.security.model.response.JwtResponse;
-import com.example.security.model.role_enum.ERole;
-import com.example.security.repositories.ProfileRepository;
-import com.example.security.repositories.RoleRepository;
-import com.example.security.repositories.UserRepository;
-import com.example.security.service.user.UserDetailsImpl;
-import com.example.security.utils.JwtUtils;
-import com.example.security.utils.exeption_utils.ExceptionUtils;
+import com.example.security.auth.model.entity.Role;
+import com.example.security.auth.model.enums.RoleEnum;
+import com.example.security.auth.model.response.JwtResponse;
+import com.example.security.auth.repository.RoleRepository;
+import com.example.security.auth.util.JwtUtils;
+import com.example.security.common.constant.SystemConstant;
+import com.example.security.common.exception.ResourceException;
+import com.example.security.user.model.response.ProfileDTO;
+import com.example.security.user.model.entity.Profile;
+import com.example.security.auth.model.entity.RefreshToken;
+import com.example.security.user.model.entity.User;
+import com.example.security.user.model.mapper.ProfileMapper;
+import com.example.security.user.model.mapper.UserMapper;
+import com.example.security.auth.model.request.LoginRequest;
+import com.example.security.auth.model.request.SignupRequest;
+import com.example.security.user.repository.ProfileRepository;
+import com.example.security.user.repository.UserRepository;
+import com.example.security.common.utils.exception.ExceptionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -910,7 +928,7 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateAccessToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        com.example.security.user.service.impl.UserDetailsImpl userDetails = (com.example.security.user.service.impl.UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
@@ -928,7 +946,7 @@ public class AuthService {
         ExceptionUtils.runWithExAndRunningTime("SignUp Failed", true,
                 () -> {
                     this.checkEmailAndUsernameExist(signUpRequest);
-                    User user = userRepository.save(UserMapper.mapWithSignRequest(signUpRequest, this.selectRole(signUpRequest)));
+                    com.example.security.user.model.entity.User user = userRepository.save(UserMapper.mapWithSignRequest(signUpRequest, this.selectRole(signUpRequest)));
                     profileRepository.save(ProfileMapper.mapWithSignupRequest(signUpRequest, user));
                     log.info("User {} SignUp Success!", user.getUsername());
                 });
@@ -944,20 +962,20 @@ public class AuthService {
          if role ROLE_ADMIN or ROLE_MODERATOR then it will add in Set Role
          * */
         if (Objects.isNull(strRoles) || strRoles.isEmpty()) {
-            roles.add(roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new ResourceException(Constant.ROLE_NOT_FOUND)));
+            roles.add(roleRepository.findByName(RoleEnum.ROLE_USER)
+                    .orElseThrow(() -> new ResourceException(SystemConstant.ROLE_NOT_FOUND)));
             return roles;
         }
 
         strRoles.forEach(role -> {
             var eRole = switch (role) {
-                case "admin" -> ERole.ROLE_ADMIN;
-                case "moderator" -> ERole.ROLE_MODERATOR;
-                default -> ERole.ROLE_USER;
+                case "admin" -> RoleEnum.ROLE_ADMIN;
+                case "moderator" -> RoleEnum.ROLE_MODERATOR;
+                default -> RoleEnum.ROLE_USER;
             };
 
             Role userRole = roleRepository.findByName(eRole)
-                    .orElseThrow(() -> new ResourceException(Constant.ROLE_NOT_FOUND));
+                    .orElseThrow(() -> new ResourceException(SystemConstant.ROLE_NOT_FOUND));
             roles.add(userRole);
         });
         return roles;
@@ -965,17 +983,17 @@ public class AuthService {
 
     private void checkEmailAndUsernameExist(SignupRequest signUpRequest) throws NoSuchFieldException {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            throw new ResourceException(Constant.USER_EXIST);
+            throw new ResourceException(SystemConstant.USER_EXIST);
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new ResourceException(Constant.EMAIL_USED);
+            throw new ResourceException(SystemConstant.EMAIL_USED);
         }
     }
 
     public ProfileDTO getProfile(String username) throws NoSuchFieldException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceException(Constant.USER_NOT_FOUND));
-        Profile profile = profileRepository.findById(user.getId()).orElseThrow(() -> new ResourceException(Constant.PROFILE_NOT_FOUND));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceException(SystemConstant.USER_NOT_FOUND));
+        Profile profile = profileRepository.findById(user.getId()).orElseThrow(() -> new ResourceException(SystemConstant.PROFILE_NOT_FOUND));
         return ProfileMapper.toDTO(profile, user);
     }
 }
@@ -1002,14 +1020,15 @@ public class MessageResponse {
 
 #
 ### Create [AuthController.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fcontroller%2FAuthController.java)
+
 ```java
-import com.example.security.model.request.LoginRequest;
-import com.example.security.model.request.SignupRequest;
-import com.example.security.model.request.TokenRefreshRequest;
-import com.example.security.model.response.JwtResponse;
-import com.example.security.model.response.MessageResponse;
-import com.example.security.service.AuthService;
-import com.example.security.service.RefreshTokenService;
+import com.example.security.auth.model.response.JwtResponse;
+import com.example.security.auth.service.impl.AuthServiceImpl;
+import com.example.security.auth.service.impl.RefreshTokenServiceImpl;
+import com.example.security.auth.model.request.LoginRequest;
+import com.example.security.auth.model.request.SignupRequest;
+import com.example.security.auth.model.request.TokenRefreshRequest;
+import com.example.security.common.model.response.MessageResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -1026,28 +1045,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-  @Autowired
-  private AuthService authService;
+    @Autowired
+    private AuthServiceImpl authServiceImpl;
 
-  @Autowired
-  private RefreshTokenService refreshTokenService;
+    @Autowired
+    private RefreshTokenServiceImpl refreshTokenServiceImpl;
 
-  @PostMapping("/signin")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-    JwtResponse jwtResponse = authService.signIn(loginRequest);
-    return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
-  }
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        JwtResponse jwtResponse = authService.signIn(loginRequest);
+        return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+    }
 
-  @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws NoSuchFieldException {
-    authService.signUp(signUpRequest);
-    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-  }
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws NoSuchFieldException {
+        authService.signUp(signUpRequest);
+        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
 
-  @PostMapping("/refresh-token")
-  public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
-      return refreshTokenService.refreshToken(request);
-  }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
+        return refreshTokenService.refreshToken(request);
+    }
 
 }
 ```
@@ -1097,10 +1116,11 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
 #
 ### Create [WebSecurityConfig.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fconfig%2FWebSecurityConfig.java)
+
 ```java
 
-import com.example.security.model.role_enum.ERole;
-import com.example.security.service.user.UserDetailsServiceImpl;
+import com.example.security.auth.model.enums.RoleEnum;
+import com.example.security.user.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -1171,7 +1191,7 @@ public class WebSecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user").hasAuthority(ERole.ROLE_USER.name())
+                        .requestMatchers(HttpMethod.GET, "/user").hasAuthority(RoleEnum.ROLE_USER.name())
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -1230,10 +1250,11 @@ public class ErrorResponse {
 
 #
 ### Create [UserController.java](src%2Fmain%2Fjava%2Fcom%2Fexample%2Fsecurity%2Fcontroller%2FUserController.java)
+
 ```java
-import com.example.security.constant.Constant;
-import com.example.security.model.response.CommonResponse;
-import com.example.security.service.AuthService;
+import com.example.security.common.constant.SystemConstant;
+import com.example.security.common.model.response.CommonResponse;
+import com.example.security.auth.service.impl.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -1248,14 +1269,14 @@ import java.security.Principal;
 public class UserController {
 
     @Autowired
-    private AuthService userService;
+    private AuthServiceImpl userService;
 
 
     @GetMapping()
     public ResponseEntity<?> getProfile(Principal principal) throws NoSuchFieldException {
         return new ResponseEntity<>(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
-                .message(Constant.SUCCESS)
+                .message(SystemConstant.SUCCESS)
                 .data(userService.getProfile(principal.getName()))
                 .build(), HttpStatus.OK);
     }
