@@ -6,9 +6,7 @@
             http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ========================= -->
-    <!-- USERS -->
-    <!-- ========================= -->
+    <!-- ================= USERS ================= -->
     <changeSet id="001-create-users" author="alan">
         <createTable tableName="users">
             <column name="id" type="BIGINT" autoIncrement="true">
@@ -20,130 +18,135 @@
             <column name="email" type="VARCHAR(50)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="password" type="VARCHAR(120)">
+            <column name="password" type="VARCHAR(300)">
                 <constraints nullable="false"/>
             </column>
-            <column name="active" type="BIT(1)" defaultValueBoolean="true"/>
-            <column name="otp_verify" type="BIT(1)" defaultValueBoolean="false"/>
+            <column name="active" type="BIT" defaultValueBoolean="true"/>
+            <column name="verify" type="BIT" defaultValueBoolean="false"/>
+            <column name="role_id" type="BIGINT"/>
         </createTable>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- PROFILE (1-1 USERS) -->
-    <!-- ========================= -->
-    <changeSet id="002-create-profile" author="alan">
-        <createTable tableName="profile">
+    <!-- ================= PROFILES ================= -->
+    <changeSet id="002-create-profiles" author="alan">
+        <createTable tableName="profiles">
             <column name="user_id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="first_name" type="VARCHAR(255)"/>
-            <column name="last_name" type="VARCHAR(255)"/>
-            <column name="address" type="VARCHAR(255)"/>
-            <column name="old" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(200)"/>
+            <column name="last_name" type="VARCHAR(200)"/>
+            <column name="address" type="VARCHAR(200)"/>
+            <column name="old" type="VARCHAR(3)"/>
         </createTable>
 
         <addForeignKeyConstraint
-                baseTableName="profile"
+                baseTableName="profiles"
                 baseColumnNames="user_id"
                 referencedTableName="users"
                 referencedColumnNames="id"
-                constraintName="fk_profile_user"/>
+                constraintName="fk_profiles_user"/>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- ROLES -->
-    <!-- ========================= -->
+    <!-- ================= ROLES ================= -->
     <changeSet id="003-create-roles" author="alan">
         <createTable tableName="roles">
-            <column name="id" type="INT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="VARCHAR(50)">
+            <column name="role_name" type="VARCHAR(100)">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- USER_ROLES (MANY-MANY) -->
-    <!-- ========================= -->
-    <changeSet id="004-create-user-roles" author="alan">
-        <createTable tableName="user_roles">
-            <column name="user_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="role_id" type="INT">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey
-                tableName="user_roles"
-                columnNames="user_id, role_id"
-                constraintName="pk_user_roles"/>
-
+    <!-- FK users -> roles -->
+    <changeSet id="004-add-fk-users-roles" author="alan">
         <addForeignKeyConstraint
-                baseTableName="user_roles"
-                baseColumnNames="user_id"
-                referencedTableName="users"
-                referencedColumnNames="id"
-                constraintName="fk_user_roles_user"/>
-
-        <addForeignKeyConstraint
-                baseTableName="user_roles"
+                baseTableName="users"
                 baseColumnNames="role_id"
                 referencedTableName="roles"
                 referencedColumnNames="id"
-                constraintName="fk_user_roles_role"/>
+                constraintName="fk_users_roles"/>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- OTP_CODE -->
-    <!-- ========================= -->
-    <changeSet id="005-create-otp-code" author="alan">
-        <createTable tableName="otp_code">
+    <!-- ================= PERMISSIONS ================= -->
+    <changeSet id="005-create-permissions" author="alan">
+        <createTable tableName="permissions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="permission_name" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ================= ROLES_PERMISSIONS ================= -->
+    <changeSet id="006-fix-create-roles-permissions" author="alan">
+        <createTable tableName="roles_permissions">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="otp_code" type="VARCHAR(255)">
+
+            <column name="role_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="otp_key" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="expiry_date" type="DATETIME(6)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT">
+
+            <column name="permission_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
         <addForeignKeyConstraint
-                baseTableName="otp_code"
+                baseTableName="roles_permissions"
+                baseColumnNames="role_id"
+                referencedTableName="roles"
+                referencedColumnNames="id"
+                constraintName="fk_roles_permissions_role"/>
+
+        <addForeignKeyConstraint
+                baseTableName="roles_permissions"
+                baseColumnNames="permission_id"
+                referencedTableName="permissions"
+                referencedColumnNames="id"
+                constraintName="fk_roles_permissions_permission"/>
+
+        <!-- tránh duplicate mapping -->
+        <addUniqueConstraint
+                tableName="roles_permissions"
+                columnNames="role_id,permission_id"
+                constraintName="uk_role_permission"/>
+    </changeSet>
+
+    <!-- ================= OTP ================= -->
+    <changeSet id="007-create-otp" author="alan">
+        <createTable tableName="otp">
+            <column name="uuid" type="VARCHAR(200)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="otp_code" type="VARCHAR(6)"/>
+            <column name="token" type="VARCHAR(300)"/>
+            <column name="expiry_date" type="DATETIME"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="otp"
                 baseColumnNames="user_id"
                 referencedTableName="users"
                 referencedColumnNames="id"
                 constraintName="fk_otp_user"/>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- REFRESH_TOKEN -->
-    <!-- ========================= -->
-    <changeSet id="006-create-refresh-token" author="alan">
+    <!-- ================= REFRESH TOKEN ================= -->
+    <changeSet id="008-create-refresh-token" author="alan">
         <createTable tableName="refresh_token">
             <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true"/>
             </column>
-            <column name="token" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="expiry_date" type="DATETIME(6)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="user_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
+            <column name="token" type="VARCHAR(200)"/>
+            <column name="expiry_date" type="DATETIME"/>
+            <column name="user_id" type="BIGINT"/>
         </createTable>
 
         <addForeignKeyConstraint
@@ -154,30 +157,48 @@
                 constraintName="fk_refresh_token_user"/>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- EMAIL_RECORD -->
-    <!-- ========================= -->
-    <changeSet id="007-create-email-record" author="alan">
-        <createTable tableName="email_record">
+    <!-- ================= EMAIL ================= -->
+    <changeSet id="009-create-email" author="alan">
+        <createTable tableName="email">
             <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints primaryKey="true"/>
             </column>
-            <column name="to_email" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="subject" type="VARCHAR(255)"/>
+            <column name="to_email" type="VARCHAR(200)"/>
+            <column name="subject" type="VARCHAR(200)"/>
             <column name="body" type="TEXT"/>
-            <column name="sent_at" type="DATETIME(6)"/>
+            <column name="sent_at" type="DATETIME"/>
         </createTable>
     </changeSet>
 
-    <!-- ========================= -->
-    <!-- EMAIL_RECORD_SEQ -->
-    <!-- ========================= -->
-    <changeSet id="008-create-email-record-seq" author="alan">
-        <createTable tableName="email_record_seq">
-            <column name="next_val" type="BIGINT"/>
+    <!-- ================= QUESTIONS ================= -->
+    <changeSet id="010-create-questions" author="alan">
+        <createTable tableName="questions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="topic" type="VARCHAR(100)"/>
+            <column name="detail" type="TEXT"/>
+            <column name="status" type="VARCHAR(20)"/>
+            <column name="answer" type="TEXT"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="updated_by" type="BIGINT"/>
         </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="questions"
+                baseColumnNames="created_by"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_questions_created_by"/>
+
+        <addForeignKeyConstraint
+                baseTableName="questions"
+                baseColumnNames="updated_by"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_questions_updated_by"/>
     </changeSet>
 
 </databaseChangeLog>

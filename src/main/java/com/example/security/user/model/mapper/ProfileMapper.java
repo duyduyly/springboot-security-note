@@ -9,7 +9,7 @@ public class ProfileMapper {
 
     public static ProfileDTO toDTO(Profile profile, User user) {
        return ProfileDTO.builder()
-                .id(profile.getId())
+//                .id(profile.getId()) //todo
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .address(profile.getAddress())

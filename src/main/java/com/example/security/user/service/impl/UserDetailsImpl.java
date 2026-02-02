@@ -1,8 +1,10 @@
 package com.example.security.user.service.impl;
 
 
+import com.example.security.auth.model.entity.Role;
 import com.example.security.user.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.PostConstruct;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,9 +48,9 @@ public class UserDetailsImpl implements UserDetails {
   /**
    method to build UserDetail (called user detailsService Impl for return UserDetail)
    */
-  public UserDetailsImpl build(User user) {
-    List<GrantedAuthority> authorities = user.getRoles().stream()
-        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+  public UserDetailsImpl build(User user, List<String> permissions) {
+      List<GrantedAuthority> authorities = permissions.stream()
+        .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
 
     return new UserDetailsImpl(
@@ -59,6 +61,11 @@ public class UserDetailsImpl implements UserDetails {
         authorities
     );
   }
+
+    @PostConstruct
+    public void loadRoles(){
+
+    }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

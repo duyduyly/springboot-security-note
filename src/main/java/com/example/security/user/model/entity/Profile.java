@@ -1,13 +1,6 @@
 package com.example.security.user.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,15 +17,22 @@ import lombok.Setter;
 public class Profile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String old;
-    private String address;
+    private Long userId;
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(length = 200)
+    private String firstName;
+
+    @Column(length = 200)
+    private String lastName;
+
+    @Column(length = 200)
+    private String address;
+
+    @Column(length = 3)
+    private String old;
 }

@@ -135,7 +135,7 @@ public class AuthServiceImpl implements AuthService {
 
     public ProfileDTO getProfile(String username) throws NoSuchFieldException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceException(SystemConstant.USER_NOT_FOUND));
-        Profile profile = profileRepository.findById(user.getId()).orElseThrow(() -> new ResourceException(SystemConstant.PROFILE_NOT_FOUND));
+        Profile profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceException(SystemConstant.PROFILE_NOT_FOUND));
         return ProfileMapper.toDTO(profile, user);
     }
 }
