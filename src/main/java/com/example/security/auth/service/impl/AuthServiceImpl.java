@@ -19,6 +19,7 @@ import com.example.security.auth.repository.RoleRepository;
 import com.example.security.user.repository.UserRepository;
 import com.example.security.user.service.impl.UserDetailsImpl;
 import com.example.security.auth.util.JwtUtils;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,10 +29,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,46 +80,22 @@ public class AuthServiceImpl implements AuthService {
                 roles);
     }
 
+    @Transactional
     @Override
-    public void signUp(SignupRequest signUpRequest) throws NoSuchFieldException {
-        try{
-            this.checkEmailAndUsernameExist(signUpRequest);
-            User user = userRepository.save(UserMapper.mapWithSignRequest(signUpRequest, this.selectRole(signUpRequest)));
-            profileRepository.save(ProfileMapper.mapWithSignupRequest(signUpRequest, user));
+    public void signUp(SignupRequest request) throws NoSuchFieldException {
+        try {
+            this.checkEmailAndUsernameExist(request);
+            Role role = roleRepository.findByName(RoleEnum.valueOf(request.getRole())).orElseThrow(()->
+            new ResourceException(SystemConstant.ROLE_NOT_FOUND));
+
+            User user = userRepository.save(UserMapper.toEntity(request, role));
+            profileRepository.save(ProfileMapper.toEntity(request, user));
             log.info("User {} SignUp Success!", user.getUsername());
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
     }
 
-    private Set<Role> selectRole(SignupRequest signUpRequest) {
-        //get Role
-        Set<String> strRoles = signUpRequest.getRole();
-        Set<Role> roles = new HashSet<>();
-        /**
-         * check role
-         if role is null then Set role is  ROLE_USER
-         if role ROLE_ADMIN or ROLE_MODERATOR then it will add in Set Role
-         * */
-        if (Objects.isNull(strRoles) || strRoles.isEmpty()) {
-            roles.add(roleRepository.findByName(RoleEnum.ROLE_USER)
-                    .orElseThrow(() -> new ResourceException(SystemConstant.ROLE_NOT_FOUND)));
-            return roles;
-        }
-
-        strRoles.forEach(role -> {
-            var eRole = switch (role) {
-                case "admin" -> RoleEnum.ROLE_ADMIN;
-                case "moderator" -> RoleEnum.ROLE_MODERATOR;
-                default -> RoleEnum.ROLE_USER;
-            };
-
-            Role userRole = roleRepository.findByName(eRole)
-                    .orElseThrow(() -> new ResourceException(SystemConstant.ROLE_NOT_FOUND));
-            roles.add(userRole);
-        });
-        return roles;
-    }
 
     private void checkEmailAndUsernameExist(SignupRequest signUpRequest) throws NoSuchFieldException {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {

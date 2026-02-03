@@ -1,10 +1,15 @@
 package com.example.security.auth.model.entity;
 
-import com.example.security.user.model.entity.User;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "roles_permissions")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class RolePermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

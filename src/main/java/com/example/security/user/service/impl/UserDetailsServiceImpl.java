@@ -1,7 +1,8 @@
 package com.example.security.user.service.impl;
 
-import com.example.security.auth.repository.PermissionRepository;
-import com.example.security.auth.repository.RolePermissionRepository;
+import com.example.security.auth.model.entity.Permission;
+import com.example.security.auth.model.enums.RoleEnum;
+import com.example.security.auth.service.RoleService;
 import com.example.security.common.exception.ResourceException;
 import com.example.security.user.model.entity.User;
 import com.example.security.user.repository.UserRepository;
@@ -12,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * interface has a method to load
@@ -26,8 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final UserDetailsImpl userDetails;
-    private final PermissionRepository permissionRepository;
-    private final RolePermissionRepository rolePermissionRepository;
+    private final RoleService roleService;
 
     public static final String USER_NOT_FOUND = "Username not found ";
 
@@ -36,8 +36,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsernameAndActiveIsAndVerifyIs(username, true, true)
                 .orElseThrow(() -> new ResourceException(USER_NOT_FOUND));
-//        permissionRepository.findB
-        return userDetails.build(user, new ArrayList<>()); //todo
+
+        RoleEnum roleEnum = user.getRole().getName();
+        List<Permission> permissionList = roleService.getPermissionList(roleEnum);
+        List<String> permissionStrList = permissionList.stream().map(Permission::getName).toList();
+        return userDetails.build(user, permissionStrList);
     }
 
 

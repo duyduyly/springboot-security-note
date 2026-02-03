@@ -37,8 +37,8 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws NoSuchFieldException {
-    authService.signUp(signUpRequest);
+  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest request) throws NoSuchFieldException {
+    authService.signUp(request);
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
 

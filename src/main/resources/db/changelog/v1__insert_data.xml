@@ -8,37 +8,37 @@
 
     <changeSet id="01-insert-roles" author="alan">
         <insert tableName="roles">
-            <column name="role_name" value="USER"/>
+            <column name="name" value="USER"/>
         </insert>
         <insert tableName="roles">
-            <column name="role_name" value="REVIEWER"/>
+            <column name="name" value="REVIEWER"/>
         </insert>
         <insert tableName="roles">
-            <column name="role_name" value="ADMIN"/>
+            <column name="name" value="ADMIN"/>
         </insert>
         <insert tableName="roles">
-            <column name="role_name" value="MENTOR"/>
+            <column name="name" value="MENTOR"/>
         </insert>
     </changeSet>
 
     <changeSet id="02-insert-permissions" author="alan">
         <insert tableName="permissions">
-            <column name="permission_name" value="VIEW"/>
+            <column name="name" value="VIEW"/>
         </insert>
         <insert tableName="permissions">
-            <column name="permission_name" value="CREATE"/>
+            <column name="name" value="CREATE"/>
         </insert>
         <insert tableName="permissions">
-            <column name="permission_name" value="UPDATE"/>
+            <column name="name" value="UPDATE"/>
         </insert>
         <insert tableName="permissions">
-            <column name="permission_name" value="ACCEPT"/>
+            <column name="name" value="ACCEPT"/>
         </insert>
         <insert tableName="permissions">
-            <column name="permission_name" value="REMOVE"/>
+            <column name="name" value="REMOVE"/>
         </insert>
         <insert tableName="permissions">
-            <column name="permission_name" value="REPLY"/>
+            <column name="name" value="REPLY"/>
         </insert>
     </changeSet>
 
@@ -47,96 +47,96 @@
         <!-- Role -->
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'USER')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'USER')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'VIEW')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'VIEW')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'USER')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'USER')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'CREATE')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'CREATE')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'USER')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'USER')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'UPDATE')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'UPDATE')"/>
         </insert>
 
         <!-- REVIEWER -->
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'REVIEWER')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'REVIEWER')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'VIEW')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'VIEW')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'REVIEWER')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'REVIEWER')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'ACCEPT')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'ACCEPT')"/>
         </insert>
 
         <!-- MENTOR -->
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'MENTOR')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'MENTOR')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'VIEW')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'VIEW')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'MENTOR')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'MENTOR')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'REPLY')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'REPLY')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'MENTOR')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'MENTOR')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'ACCEPT')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'ACCEPT')"/>
         </insert>
 
         <!-- ADMIN (ALL EXCEPT REPLY) -->
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'ADMIN')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'ADMIN')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'VIEW')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'VIEW')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'ADMIN')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'ADMIN')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'CREATE')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'CREATE')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'ADMIN')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'ADMIN')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'UPDATE')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'UPDATE')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'ADMIN')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'ADMIN')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'ACCEPT')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'ACCEPT')"/>
         </insert>
 
         <insert tableName="roles_permissions">
             <column name="role_id"
-                    valueComputed="(SELECT id FROM roles WHERE role_name = 'ADMIN')"/>
+                    valueComputed="(SELECT id FROM roles WHERE name = 'ADMIN')"/>
             <column name="permission_id"
-                    valueComputed="(SELECT id FROM permissions WHERE permission_name = 'REMOVE')"/>
+                    valueComputed="(SELECT id FROM permissions WHERE name = 'REMOVE')"/>
         </insert>
 
     </changeSet>

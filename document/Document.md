@@ -6,6 +6,9 @@
 - Mentor Answer Accepted Question
 - Admin Manage Question and User
 
+-----------------
+<br/>
+
 ## API
  - Auth
    - sign-in
@@ -23,9 +26,26 @@
   - accept
   - answer
 
+-----------------
+<br/>
+
+## API Document
+--> [Api Document.md](Api%20Document.md)
+
+
+-----------------
+<br/>
+
 ## Physical Erd
-https://drive.google.com/file/d/1OA1mJZFMwNlOPOmZ8IVB9opQNOCVWAFU/view?usp=sharing
-![Spring Security Mono Physical ERD Chart.jpg](resource/Spring%20Security%20Mono%20Physical%20ERD%20Chart.jpg)
+- https://drive.google.com/file/d/1OA1mJZFMwNlOPOmZ8IVB9opQNOCVWAFU/view?usp=sharing
+
+<br/>
+
+- ![Spring Security Mono Physical ERD Chart.png](resource/Spring%20Security%20Mono%20Physical%20ERD%20Chart.png)
+
+
+-----------------
+<br/>
 
 
 ### Common Setup

@@ -1,4 +1,4 @@
-package com.example.security.auth.model;
+package com.example.security.auth.model.field;
 
 import com.example.security.auth.model.entity.Permission;
 import lombok.*;
