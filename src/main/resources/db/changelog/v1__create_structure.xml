@@ -124,10 +124,13 @@
             <column name="uuid" type="VARCHAR(200)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="otp_code" type="VARCHAR(6)"/>
-            <column name="token" type="VARCHAR(300)"/>
-            <column name="expiry_date" type="DATETIME"/>
+            <column name="otp_hash" type="VARCHAR(200)"/>
+            <column name="type" type="VARCHAR(30)"/>
+            <column name="expires_at" type="DATETIME"/>
+            <column name="attempts_count" type="INT"/>
+            <column name="max_attempts" type="INT"/>
             <column name="user_id" type="BIGINT"/>
+            <column name="created_at" type="DATETIME"/>
         </createTable>
 
         <addForeignKeyConstraint

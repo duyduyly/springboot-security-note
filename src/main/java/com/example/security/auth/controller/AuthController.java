@@ -4,11 +4,10 @@ package com.example.security.auth.controller;
 import com.example.security.auth.model.request.LoginRequest;
 import com.example.security.auth.model.request.SignupRequest;
 import com.example.security.auth.model.request.TokenRefreshRequest;
+import com.example.security.auth.model.request.VerifyOtpRequest;
 import com.example.security.auth.model.response.JwtResponse;
 import com.example.security.auth.service.AuthService;
 import com.example.security.auth.service.RefreshTokenService;
-import com.example.security.common.model.response.MessageResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,15 +32,13 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest request) throws NoSuchFieldException, JsonProcessingException {
-    authService.signUp(request);
-    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest request) {
+    return authService.signUp(request);
   }
 
-    @PostMapping("/otp")
-    public ResponseEntity<?> verifyOtp(@Valid @RequestBody SignupRequest signUpRequest) throws NoSuchFieldException, JsonProcessingException {
-        authService.signUp(signUpRequest);
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        return authService.verifyOtp(request);
     }
 
   @PostMapping("/refresh-token")
