@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify OTP</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .otp-box {
+            margin: 24px 0;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            color: #2d6cdf;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Verify Your OTP</h2>
+    <p>Please use the OTP code below to verify your action.</p>
+
+    <div class="otp-box">
+        <span th:text="${otp_code}">123456</span>
+    </div>
+
+    <p class="note">
+        This OTP is valid for <strong>5 minutes</strong>.
+        Please do not share this code with anyone.
+    </p>
+
+    <div class="footer">
+        © 2026 Your Company. All rights reserved.
+    </div>
+</div>
+
+</body>
+</html>

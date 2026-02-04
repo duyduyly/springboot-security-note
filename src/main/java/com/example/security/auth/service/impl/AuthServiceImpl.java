@@ -4,6 +4,9 @@ import com.example.security.auth.model.enums.RoleEnum;
 import com.example.security.auth.service.AuthService;
 import com.example.security.common.constant.SystemConstant;
 import com.example.security.common.exception.ResourceException;
+import com.example.security.common.utils.CommonUtils;
+import com.example.security.notification.model.message.EmailMessage;
+import com.example.security.notification.service.MessageProducer;
 import com.example.security.user.model.response.ProfileDTO;
 import com.example.security.user.model.entity.Profile;
 import com.example.security.auth.model.entity.RefreshToken;
@@ -19,9 +22,11 @@ import com.example.security.auth.repository.RoleRepository;
 import com.example.security.user.repository.UserRepository;
 import com.example.security.user.service.impl.UserDetailsImpl;
 import com.example.security.auth.util.JwtUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,26 +39,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private ProfileRepository profileRepository;
-
-    @Autowired
-    private RefreshTokenServiceImpl refreshTokenServiceImpl;
-
+    private final AuthenticationManager authenticationManager;
+    private final  JwtUtils jwtUtils;
+    private final  UserRepository userRepository;
+    private final  RoleRepository roleRepository;
+    private final  ProfileRepository profileRepository;
+    private final  RefreshTokenServiceImpl refreshTokenServiceImpl;
+    private final MessageProducer messageProducer;
+    private final ObjectMapper objectMapper;
 
     @Override
     public JwtResponse signIn(LoginRequest loginRequest) {
@@ -82,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public void signUp(SignupRequest request) throws NoSuchFieldException {
+    public void signUp(SignupRequest request) throws NoSuchFieldException, JsonProcessingException {
         try {
             this.checkEmailAndUsernameExist(request);
             Role role = roleRepository.findByName(RoleEnum.valueOf(request.getRole())).orElseThrow(()->
@@ -90,10 +86,28 @@ public class AuthServiceImpl implements AuthService {
 
             User user = userRepository.save(UserMapper.toEntity(request, role));
             profileRepository.save(ProfileMapper.toEntity(request, user));
+
+            String jwt = jwtUtils.generateAccessToken(request.getUsername());
+            EmailMessage message = EmailMessage.builder()
+                    .to(request.getEmail())
+                    .subject("Verify your account")
+                    .templateKey("verify-otp")
+                    .paramMap(new HashMap<>() {{
+                        put("otp_code", CommonUtils.randomOtp());
+                    }})
+                    .build();
+
+            messageProducer.sendEmail(objectMapper.writeValueAsString(message));
+            messageProducer.sendSMS("Demo SMS message");
             log.info("User {} SignUp Success!", user.getUsername());
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @Override
+    public void verifyOtp(String username, String otp) throws Exception {
+
     }
 
 

@@ -25,6 +25,5 @@ public class SpringSecurityMonoApplication implements CommandLineRunner {
 				.body("<h1>"+randomNumber+"</h1>").subject("OTP Mail").build();
 
 		mailService.sendEmail(otpMail);
-
 	}
 }

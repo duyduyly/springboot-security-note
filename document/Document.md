@@ -9,6 +9,26 @@
 -----------------
 <br/>
 
+## Roles and Permissions
+- `Roles`: USER, REVIEWER, ADMIN, MENTOR
+- `Permissions`: VIEW ,CREATE, UPDATE, ACCEPT, REMOVE, REPLY.
+- `User`
+  - CREATE
+  - UPDATE
+  - VIEW
+- `Reviewer`
+  - VIEW
+  - ACCEPT
+- `Admin` 
+  - ALL without REPLY.
+- `Mentor`
+  - VIEW
+  - REPLY
+  - ACCEPT.
+
+-----------------
+<br/>
+
 ## API
  - Auth
    - sign-in
@@ -30,7 +50,7 @@
 <br/>
 
 ## API Document
---> [Api Document.md](Api%20Document.md)
+--> [Api Document.md](component/Api%20Document.md)
 
 
 -----------------

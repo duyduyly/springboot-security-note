@@ -1,6 +1,6 @@
 # API Document
 
---> [Back To Home](Document.md)
+--> [Back To Home](../Document.md)
 
 ## Sign Up
 ### 1. `POST http://localhost:9091/api/auth/signup`
