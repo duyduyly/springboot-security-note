@@ -1,39 +1,38 @@
 package com.example.security.auth.service.impl;
 
 import com.example.security.auth.model.entity.Otp;
+import com.example.security.auth.model.entity.RefreshToken;
+import com.example.security.auth.model.entity.Role;
 import com.example.security.auth.model.enums.OtpTypeEnum;
 import com.example.security.auth.model.enums.RoleEnum;
+import com.example.security.auth.model.request.LoginRequest;
+import com.example.security.auth.model.request.SignupRequest;
 import com.example.security.auth.model.request.VerifyOtpRequest;
+import com.example.security.auth.model.response.JwtResponse;
 import com.example.security.auth.repository.OtpRepository;
+import com.example.security.auth.repository.RoleRepository;
 import com.example.security.auth.service.AuthService;
+import com.example.security.auth.service.RefreshTokenService;
+import com.example.security.auth.util.JwtUtils;
 import com.example.security.common.constant.SystemConstant;
 import com.example.security.common.exception.AuthException;
 import com.example.security.common.exception.ResourceException;
 import com.example.security.common.utils.CommonUtils;
 import com.example.security.notification.model.message.EmailMessage;
 import com.example.security.notification.service.MessageProducer;
-import com.example.security.user.model.response.ProfileDTO;
 import com.example.security.user.model.entity.Profile;
-import com.example.security.auth.model.entity.RefreshToken;
-import com.example.security.auth.model.entity.Role;
 import com.example.security.user.model.entity.User;
 import com.example.security.user.model.mapper.ProfileMapper;
 import com.example.security.user.model.mapper.UserMapper;
-import com.example.security.auth.model.request.LoginRequest;
-import com.example.security.auth.model.request.SignupRequest;
-import com.example.security.auth.model.response.JwtResponse;
+import com.example.security.user.model.response.ProfileDTO;
 import com.example.security.user.repository.ProfileRepository;
-import com.example.security.auth.repository.RoleRepository;
 import com.example.security.user.repository.UserRepository;
 import com.example.security.user.service.impl.UserDetailsImpl;
-import com.example.security.auth.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,7 +42,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +57,7 @@ public class AuthServiceImpl extends AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ProfileRepository profileRepository;
-    private final RefreshTokenServiceImpl refreshTokenServiceImpl;
+    private final RefreshTokenService refreshTokenService;
     private final MessageProducer messageProducer;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
@@ -78,7 +79,7 @@ public class AuthServiceImpl extends AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        RefreshToken refreshToken = refreshTokenServiceImpl.createRefreshToken(authentication);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication);
         return new JwtResponse(jwt,
                 refreshToken.getToken(),
                 userDetails.getId(),

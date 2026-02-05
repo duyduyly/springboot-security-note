@@ -24,8 +24,10 @@ spring.liquibase.enabled=true
 
 #Security
 security.app.jwtSecret= AlanApp
-security.app.jwtExpirationMs= 86400000
+#1 hour -> example: 86400000 ms =  (86400000 / 1000) / (60*60) = 24 hours
+security.app.jwtExpirationMs= 3600000
 security.app.cleanup.token-minutes=0 */10 * * * *
+#7 days
 jwt.refresh.expirationMs=604800000
 security.otp.ExpirationM=3
 security.otp.maxAttempts=5

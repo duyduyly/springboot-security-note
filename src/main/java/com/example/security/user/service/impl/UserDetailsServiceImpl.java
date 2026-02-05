@@ -40,7 +40,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         RoleEnum roleEnum = user.getRole().getName();
         List<Permission> permissionList = roleService.getPermissionList(roleEnum);
         List<String> permissionStrList = permissionList.stream().map(Permission::getName).toList();
-        return userDetails.build(user, permissionStrList);
+        return userDetails.build(user, permissionStrList, roleEnum);
     }
 
 

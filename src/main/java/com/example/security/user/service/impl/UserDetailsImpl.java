@@ -1,7 +1,7 @@
 package com.example.security.user.service.impl;
 
 
-import com.example.security.auth.model.entity.Role;
+import com.example.security.auth.model.enums.RoleEnum;
 import com.example.security.user.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.PostConstruct;
@@ -10,10 +10,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  Object of  user detail
@@ -48,10 +48,18 @@ public class UserDetailsImpl implements UserDetails {
   /**
    method to build UserDetail (called user detailsService Impl for return UserDetail)
    */
-  public UserDetailsImpl build(User user, List<String> permissions) {
-      List<GrantedAuthority> authorities = permissions.stream()
-        .map(SimpleGrantedAuthority::new)
-        .collect(Collectors.toList());
+  public UserDetailsImpl build(User user, List<String> permissions, RoleEnum role) {
+      List<GrantedAuthority> authorities = new ArrayList<>();
+
+      //add role
+      authorities.add(new SimpleGrantedAuthority(role.name()));
+
+
+      List<SimpleGrantedAuthority> collect = permissions.stream()
+              .map(SimpleGrantedAuthority::new)
+              .toList();
+      authorities.addAll(collect); //add permissions
+
 
     return new UserDetailsImpl(
         user.getId(), 
