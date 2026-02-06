@@ -7,10 +7,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,6 +34,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private AuthenticationEntryPoint authEntryPointJwt;
 
 
     @Override
@@ -56,7 +61,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
             String jwt = this.parseJwt(request);
             if (!jwtUtils.validateJwtToken(jwt)) {// check validate for token
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                authEntryPointJwt.commence(
+                        request,
+                        response,
+                        new BadCredentialsException("You do not have permission to access this resource")
+                ); //throw error if token invalid
                 return;
             }
 
@@ -75,7 +84,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             log.error("Cannot set user authentication: ", e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             throw e;
         }
 

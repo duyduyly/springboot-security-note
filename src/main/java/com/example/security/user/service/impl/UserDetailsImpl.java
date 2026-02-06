@@ -54,12 +54,11 @@ public class UserDetailsImpl implements UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         //add role
-        authorities.add(new SimpleGrantedAuthority(role.name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
 
-        List<SimpleGrantedAuthority> collect = permissions.stream()
-                .map(SimpleGrantedAuthority::new)
-                .toList();
-        authorities.addAll(collect); //add permissions
+        permissions.forEach(p ->
+                authorities.add(new SimpleGrantedAuthority(p))
+        ); //add permissions
 
 
         return new UserDetailsImpl(
