@@ -21,7 +21,7 @@ public class UserController {
     @Autowired
     private AuthServiceImpl userService;
 
-    @GetMapping
+    @GetMapping("/profile")
     @PreAuthorize("hasAnyAuthority('ADMIN','USER','MENTOR','REVIEWER')")
     public ResponseEntity<?> getProfile(Principal principal) throws NoSuchFieldException {
         return new ResponseEntity<>(CommonResponse.builder()

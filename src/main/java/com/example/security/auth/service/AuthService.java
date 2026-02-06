@@ -10,6 +10,7 @@ import com.example.security.user.model.entity.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Slf4j
@@ -26,7 +27,7 @@ public abstract class AuthService {
             this.notifyUserSignup(request, otpCode);
         } catch (Exception e) {
             log.error("User SignUp Failed: {}", e.toString());
-            return ResponseEntity.badRequest().body(new MessageResponse("User SignUp Failed, please try again!"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("User SignUp Failed, please try again!"));
         }
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }

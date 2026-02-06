@@ -17,24 +17,23 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-  private final AuthService authService;
-  private final RefreshTokenService refreshTokenService;
+    private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
 
+    @PostMapping("/sign-in")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        JwtResponse jwtResponse = authService.signIn(loginRequest);
+        return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+    }
 
-  @PostMapping("/signin")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-    JwtResponse jwtResponse = authService.signIn(loginRequest);
-    return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
-  }
-
-  @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest request) {
-    return authService.signUp(request);
-  }
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest request) {
+        return authService.signUp(request);
+    }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
