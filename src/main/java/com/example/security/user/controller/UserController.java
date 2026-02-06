@@ -22,7 +22,7 @@ public class UserController {
     private AuthServiceImpl userService;
 
     @GetMapping("/profile")
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER','MENTOR','REVIEWER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER','MENTOR','REVIEWER')")
     public ResponseEntity<?> getProfile(Principal principal) throws NoSuchFieldException {
         return new ResponseEntity<>(CommonResponse.builder()
                 .status(HttpStatus.OK.value())

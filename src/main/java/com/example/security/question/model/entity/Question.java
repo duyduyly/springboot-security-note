@@ -1,11 +1,20 @@
 package com.example.security.question.model.entity;
 
+import com.example.security.question.audit.QuestionAudit;
+import com.example.security.question.model.enums.QuestionStatusEnum;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "questions")
+@EntityListeners(QuestionAudit.class)
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class Question {
 
     @Id
@@ -19,7 +28,8 @@ public class Question {
     private String detail;
 
     @Column(length = 20)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private QuestionStatusEnum status;
 
     @Lob
     @Column(name = "answer")
@@ -32,8 +42,8 @@ public class Question {
     private LocalDateTime updatedAt;
 
     @Column(name = "created_by")
-    private Long createdBy;
+    private String createdBy;
 
     @Column(name = "updated_by")
-    private Long updatedBy;
+    private String updatedBy;
 }

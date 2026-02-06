@@ -184,23 +184,23 @@
             <column name="status" type="VARCHAR(20)"/>
             <column name="answer" type="TEXT"/>
             <column name="created_at" type="DATETIME"/>
-            <column name="created_by" type="BIGINT"/>
+            <column name="created_by" type="VARCHAR(40)"/>
             <column name="updated_at" type="DATETIME"/>
-            <column name="updated_by" type="BIGINT"/>
+            <column name="updated_by" type="VARCHAR(40)"/>
         </createTable>
 
         <addForeignKeyConstraint
                 baseTableName="questions"
                 baseColumnNames="created_by"
                 referencedTableName="users"
-                referencedColumnNames="id"
+                referencedColumnNames="username"
                 constraintName="fk_questions_created_by"/>
 
         <addForeignKeyConstraint
                 baseTableName="questions"
                 baseColumnNames="updated_by"
                 referencedTableName="users"
-                referencedColumnNames="id"
+                referencedColumnNames="username"
                 constraintName="fk_questions_updated_by"/>
     </changeSet>
 
