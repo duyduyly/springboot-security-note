@@ -1,14 +1,14 @@
 package com.example.security.auth.service.impl;
 
-import com.example.security.auth.service.RefreshTokenService;
 import com.example.security.auth.model.entity.RefreshToken;
-import com.example.security.user.model.entity.User;
 import com.example.security.auth.model.request.TokenRefreshRequest;
 import com.example.security.auth.model.response.JwtRefreshResponse;
 import com.example.security.auth.repository.RefreshTokenRepository;
+import com.example.security.auth.service.RefreshTokenService;
+import com.example.security.auth.util.JwtUtils;
+import com.example.security.user.model.entity.User;
 import com.example.security.user.repository.UserRepository;
 import com.example.security.user.service.impl.UserDetailsImpl;
-import com.example.security.auth.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -36,19 +36,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken createRefreshToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
         User user = userRepository.findByUsername(userPrincipal.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Delete old token (optional)
-        refreshTokenRepository.deleteByUserId(user.getId());
-
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setId(user.getId());
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId()).orElse(new RefreshToken());
         refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshToken.setToken(UUID.randomUUID().toString());
-
         return refreshTokenRepository.save(refreshToken);
     }
 

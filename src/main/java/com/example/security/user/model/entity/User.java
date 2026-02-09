@@ -1,28 +1,19 @@
 package com.example.security.user.model.entity;
 
+import com.example.security.auth.model.entity.Otp;
+import com.example.security.auth.model.entity.RefreshToken;
 import com.example.security.user.model.audit.UserAuditListener;
 import com.example.security.auth.model.entity.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,36 +29,38 @@ import java.util.Set;
 @Builder
 @EntityListeners(UserAuditListener.class)
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", length = 40, unique = true)
+    @Column(length = 40, nullable = false, unique = true)
     private String username;
 
-    @Column(name = "email", length = 50, unique = true)
+    @Column(length = 50, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", length = 120)
+    @Column(length = 300, nullable = false)
     private String password;
 
-    @Builder.Default
-    @Column(name = "active_")
-    private Boolean active = true;
+    private Boolean active;
 
-    @Column(name = "otp_verify")
-    @Builder.Default
-    private Boolean otpVerify = false;
+    private Boolean verify;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    /* ===== Relationships ===== */
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
-    @OneToOne(mappedBy = "user")
-    @PrimaryKeyJoinColumn
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Profile profile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Otp> otps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
+
 
 }

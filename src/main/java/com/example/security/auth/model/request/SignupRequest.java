@@ -4,13 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.Set;
+import lombok.*;
 
 @Getter
 @Setter
@@ -27,7 +21,7 @@ public class SignupRequest {
   @Email
   private String email;
 
-  private Set<String> role;
+  private String role;
 
   @NotBlank
   @Size(min = 6, max = 40)

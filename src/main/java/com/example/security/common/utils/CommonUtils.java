@@ -8,4 +8,12 @@ public class CommonUtils {
         int number = min + random.nextInt(max);
         return String.valueOf(number);
     }
+
+    public static String randomOtp() {
+        int min = 100000;
+        int max = 999999;
+        Random random = new Random();
+        int number = min + random.nextInt(max);
+        return String.valueOf(number);
+    }
 }

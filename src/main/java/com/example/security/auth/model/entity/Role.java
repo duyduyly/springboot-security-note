@@ -1,17 +1,15 @@
 package com.example.security.auth.model.entity;
 
 import com.example.security.auth.model.enums.RoleEnum;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.example.security.user.model.entity.User;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "roles")
@@ -20,11 +18,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
+    @Column(length = 100, nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
     private RoleEnum name;
+
+    @OneToMany(mappedBy = "role")
+    private List<User> users = new ArrayList<>();
 
 }

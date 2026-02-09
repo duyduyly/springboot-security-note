@@ -1,51 +1,43 @@
 package com.example.security.auth.controller;
 
 
-import com.example.security.auth.service.AuthService;
-import com.example.security.auth.service.RefreshTokenService;
 import com.example.security.auth.model.request.LoginRequest;
 import com.example.security.auth.model.request.SignupRequest;
 import com.example.security.auth.model.request.TokenRefreshRequest;
+import com.example.security.auth.model.request.VerifyOtpRequest;
 import com.example.security.auth.model.response.JwtResponse;
-import com.example.security.common.model.response.MessageResponse;
+import com.example.security.auth.service.AuthService;
+import com.example.security.auth.service.RefreshTokenService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-  @Autowired
-  private AuthService authService;
+    private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
 
-  @Autowired
-  private RefreshTokenService refreshTokenService;
+    @PostMapping("/sign-in")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        JwtResponse jwtResponse = authService.signIn(loginRequest);
+        return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
+    }
 
-  @PostMapping("/signin")
-  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-    JwtResponse jwtResponse = authService.signIn(loginRequest);
-    return new ResponseEntity<>(jwtResponse, HttpStatus.OK);
-  }
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest request) {
+        return authService.signUp(request);
+    }
 
-  @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws NoSuchFieldException {
-    authService.signUp(signUpRequest);
-    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
-  }
-
-    @PostMapping("/otp")
-    public ResponseEntity<?> verifyOtp(@Valid @RequestBody SignupRequest signUpRequest) throws NoSuchFieldException {
-        authService.signUp(signUpRequest);
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        return authService.verifyOtp(request);
     }
 
   @PostMapping("/refresh-token")

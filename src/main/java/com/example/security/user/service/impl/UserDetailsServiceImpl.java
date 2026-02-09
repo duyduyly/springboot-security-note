@@ -1,14 +1,19 @@
 package com.example.security.user.service.impl;
 
+import com.example.security.auth.model.entity.Permission;
+import com.example.security.auth.model.enums.RoleEnum;
+import com.example.security.auth.service.RoleService;
 import com.example.security.common.exception.ResourceException;
 import com.example.security.user.model.entity.User;
 import com.example.security.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * interface has a method to load
@@ -17,22 +22,27 @@ import org.springframework.transaction.annotation.Transactional;
  * @return load user and Return userDetail to authentication and validation
  */
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private UserDetailsImpl userDetails;
+    private final UserRepository userRepository;
+    private final UserDetailsImpl userDetails;
+    private final RoleService roleService;
 
     public static final String USER_NOT_FOUND = "Username not found ";
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsernameAndActiveIsAndOtpVerifyIs(username, true, true)
+        User user = userRepository.findByUsernameAndActiveIsAndVerifyIs(username, true, true)
                 .orElseThrow(() -> new ResourceException(USER_NOT_FOUND));
 
-        return userDetails.build(user);
+        RoleEnum roleEnum = user.getRole().getName();
+        List<Permission> permissionList = roleService.getPermissionList(roleEnum);
+        List<String> permissionStrList = permissionList.stream().map(Permission::getName).toList();
+        return userDetails.build(user, permissionStrList, roleEnum);
     }
+
+
 
 }

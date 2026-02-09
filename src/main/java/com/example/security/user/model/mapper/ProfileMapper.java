@@ -9,7 +9,7 @@ public class ProfileMapper {
 
     public static ProfileDTO toDTO(Profile profile, User user) {
        return ProfileDTO.builder()
-                .id(profile.getId())
+                .id(profile.getUserId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .address(profile.getAddress())
@@ -19,7 +19,7 @@ public class ProfileMapper {
                 .build();
     }
 
-    public static Profile mapWithSignupRequest(SignupRequest signUpRequest, User user) {
+    public static Profile toEntity(SignupRequest signUpRequest, User user) {
         return Profile.builder()
                 .user(user)
                 .firstName(signUpRequest.getFirstName())
